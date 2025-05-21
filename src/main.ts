@@ -14,7 +14,7 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('NestJS CRUD API')
+    .setTitle('Prueba Técnica GTT 2025')
     .setDescription('API documentation for the NestJS CRUD application')
     .setVersion('1.0')
     .build();
@@ -22,5 +22,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
+
+  console.log(`Application is running on: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

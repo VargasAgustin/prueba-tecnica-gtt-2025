@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document} from 'mongoose';
+import { Role } from '../enums/role.enum';
 
 @Schema()
 export class Profile {
@@ -14,6 +15,10 @@ export class Profile {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ enum: Role, default: Role.USER })
+  role: Role;
+
 }
 
 export type ProfileDocument = Profile & Document;

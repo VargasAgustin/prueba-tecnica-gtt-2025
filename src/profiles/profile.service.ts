@@ -1,12 +1,15 @@
-import { Injectable, NotFoundException, Type } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException, Type } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './entities/profile.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ProfileService {
   private profiles: Profile[] = [];
   private idCounter = 1;
+
+  constructor(@Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService) {}
 
   async create(createProfileDto: CreateProfileDto): Promise<Profile> {
     const newProfile = {
@@ -47,12 +50,20 @@ export class ProfileService {
   }
 
   async remove(id: string) {
+
     const profileIndex = this.profiles.findIndex(
       (profile) => profile.id === id,
     );
     if (profileIndex === -1) {
       throw new NotFoundException('Profile not found');
     }
+
+    const users = await this.usersService.findAll();
+    const userWithProfile = users.filter((user) => user.profile && user.profile.id === id);
+    if (userWithProfile.length > 0) {
+      throw new ConflictException(`Profile is assigned to ${userWithProfile.length} user(s), cannot be deleted`);
+    }
+
     const removedProfile = { ...this.profiles[profileIndex] };
     this.profiles.splice(profileIndex, 1);
     return removedProfile;
