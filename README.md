@@ -152,7 +152,7 @@ req['profile'] = userProfile;
 - `GET /users?search=texto` - Buscar usuarios por texto
 - `GET /users/:id` - Obtener un usuario por ID
 - `POST /users` - Crear un nuevo usuario
-- `PUT /users/:id` - Actualizar un usuario
+- `PATCH /users/:id` - Actualizar un usuario
 - `DELETE /users/:id` - Eliminar un usuario
 
 ### Perfiles
@@ -160,8 +160,8 @@ req['profile'] = userProfile;
 - `GET /profiles` - Obtener todos los perfiles
 - `GET /profiles/:id` - Obtener un perfil por ID
 - `POST /profiles` - Crear un nuevo perfil
-- `PUT /profiles/:id` - Actualizar un perfil
-- `PUT /profiles/:id/role` - Actualizar el rol de un perfil
+- `PATCH /profiles/:id` - Actualizar un perfil
+- `PATCH /profiles/:id/role` - Actualizar el rol de un perfil
 - `DELETE /profiles/:id` - Eliminar un perfil
 
 ## Documentación
@@ -169,6 +169,8 @@ req['profile'] = userProfile;
 La documentación de la API está disponible en la ruta `/api` una vez que la aplicación esté en ejecución.
 
 ## Docker
+
+Se agrego el archivo .dockerignore correspondiente para hacer mas liviana la imagen.
 
 Para ejecutar la aplicación con Docker:
 
@@ -179,6 +181,7 @@ docker build -t prueba-tecnica-gtt .
 # Ejecutar el contenedor
 docker run -p 3000:3000 prueba-tecnica-gtt
 ```
+
 
 ## Observaciones
 
