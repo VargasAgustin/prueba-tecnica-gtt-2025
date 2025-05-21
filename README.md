@@ -204,7 +204,7 @@ npm run test:cov
 
 ## Colección de Postman
 
-El proyecto incluye una colección de Postman para facilitar las pruebas de los endpoints. Puedes encontrarla en la carpeta `postman` del proyecto. Para usarla:
+El proyecto incluye una colección de Postman para facilitar las pruebas de los endpoints. Puedes encontrarla en la carpeta `C:\Users\agusv\nest.js\prueba-tecnica-gtt\Prueba Técnica GTT 2025.postman_collection.json` del proyecto. Para usarla:
 
 1. Importa la colección en Postman
 2. Configura la variable de entorno `baseUrl` con la URL de tu API (por defecto: `http://localhost:3000`)
