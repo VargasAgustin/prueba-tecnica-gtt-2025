@@ -21,78 +21,191 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# API de Gestión de Usuarios y Perfiles
 
-## Project setup
+API REST desarrollada con NestJS para gestionar usuarios y sus perfiles.
 
-```bash
-$ npm install
-```
+## Características
 
-## Compile and run the project
+- Operaciones CRUD completas para usuarios y perfiles
+- Validación de datos
+- Documentación con Swagger
+- Almacenamiento en memoria (con posibilidad de extender a MongoDB)
+- Filtrado de usuarios por texto
+- Sistema simple de permisos basado en roles (ADMIN y USER)
 
-```bash
-# development
-$ npm run start
+## Requisitos
 
-# watch mode
-$ npm run start:dev
+- Node.js (v18 o superior)
+- npm como gestor de paquetes
 
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+## Instalación
 
 ```bash
-# unit tests
-$ npm run test
+# Instalar dependencias
+npm install
 
-# e2e tests
-$ npm run test:e2e
+# Iniciar en modo desarrollo
+npm run start:dev
 
-# test coverage
-$ npm run test:cov
+# Compilar para producción
+npm run build
+
+# Iniciar en modo producción
+npm run start:prod
+
+# La aplicación utiliza almacenamiento en memoria por defecto
 ```
 
-## Deployment
+## Estructura del Proyecto
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+La estructura del proyecto sigue los principios de arquitectura modular de NestJS, organizando el código en módulos cohesivos y desacoplados. Esta estructura facilita el mantenimiento, la escalabilidad y la comprensión del código, especialmente para desarrolladores junior.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```
+src/
+├── users/                        # Módulo de usuarios
+│   ├── dto/                      # Objetos de transferencia de datos (Data Transfer Objects)
+│   ├── entities/                 # Entidades del dominio
+│   ├── users.controller.ts       # Controlador REST para usuarios
+│   ├── users.controller.spec.ts  # Test unitario del controlador de usuarios
+│   ├── users.service.ts          # Lógica de negocio para usuarios
+│   ├── users.service.spec.ts     # Test unitario del servicio de usuarios
+│   └── users.module.ts           # Definición del módulo de usuarios
+├── profiles/                     # Módulo de perfiles
+│   ├── dto/                      # Objetos de transferencia de datos
+│   ├── entities/                 # Entidades del dominio
+│   ├── enums/                    # Enumeraciones (como Role)
+│   ├── profile.controller.ts     # Controlador REST para perfiles
+│   ├── profile.controller.spec.ts # Test unitario del controlador de perfiles
+│   ├── profile.service.ts        # Lógica de negocio para perfiles
+│   ├── profile.service.spec.ts   # Test unitario del servicio de perfiles
+│   └── profiles.module.ts        # Definición del módulo de perfiles
+├── middleware/                   # Middleware de autenticación
+│   └── auth.middleware.ts        # Middleware para asignar perfil de usuario
+├── main.ts                       # Punto de entrada de la aplicación
+test/                             # Pruebas end-to-end (e2e)
+│   ├── app.e2e-spec.ts           # Test e2e principal
+│   └── jest-e2e.json             # Configuración de Jest para e2e
+```
+
+## Endpoints
+
+### Autenticación y Permisos
+
+#### Middleware de Autenticación
+
+La aplicación utiliza un middleware de autenticación simplificado que asigna automáticamente un perfil de administrador a todas las solicitudes para facilitar el desarrollo y las pruebas. Este middleware se encuentra en `src/middleware/auth.middleware.ts`.
+
+```typescript
+// Fragmento del middleware de autenticación
+async use(req: Request, res: Response, next: NextFunction) {
+  try {
+    // Asignamos un perfil de administrador a todas las solicitudes para simplificar
+    // En un entorno real, se validaría el API Key
+    const adminProfile = {
+      id: 'admin-profile',
+      codigo: 'ADMIN',
+      nombre: 'Administrador',
+      role: Role.ADMIN,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    req['profile'] = adminProfile;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+```
+
+#### Sistema de Permisos
+
+El sistema de permisos es muy simple y está basado en roles. Cada perfil tiene un rol asignado que puede ser:
+
+- **ADMIN**: Acceso completo a todas las funcionalidades (GET, POST, PUT, DELETE)
+- **USER**: Acceso de solo lectura (solo métodos GET)
+
+Los permisos se verifican directamente en los controladores mediante comprobaciones del rol del usuario.
+
+#### Prueba de Diferentes Roles
+
+Para probar el comportamiento con diferentes roles, puedes modificar el middleware de autenticación (`src/middleware/auth.middleware.ts`) cambiando el rol asignado de `Role.ADMIN` a `Role.USER`:
+
+```typescript
+const userProfile = {
+  id: 'user-profile',
+  codigo: 'USER',
+  nombre: 'Usuario',
+  role: Role.USER,  // Cambiar a Role.USER para probar permisos limitados
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+req['profile'] = userProfile;
+```
+
+### Usuarios
+
+- `GET /users` - Obtener todos los usuarios
+- `GET /users?search=texto` - Buscar usuarios por texto
+- `GET /users/:id` - Obtener un usuario por ID
+- `POST /users` - Crear un nuevo usuario
+- `PUT /users/:id` - Actualizar un usuario
+- `DELETE /users/:id` - Eliminar un usuario
+
+### Perfiles
+
+- `GET /profiles` - Obtener todos los perfiles
+- `GET /profiles/:id` - Obtener un perfil por ID
+- `POST /profiles` - Crear un nuevo perfil
+- `PUT /profiles/:id` - Actualizar un perfil
+- `PUT /profiles/:id/role` - Actualizar el rol de un perfil
+- `DELETE /profiles/:id` - Eliminar un perfil
+
+## Documentación
+
+La documentación de la API está disponible en la ruta `/api` una vez que la aplicación esté en ejecución.
+
+## Docker
+
+Para ejecutar la aplicación con Docker:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Construir la imagen
+docker build -t prueba-tecnica-gtt .
+
+# Ejecutar el contenedor
+docker run -p 3000:3000 prueba-tecnica-gtt
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Observaciones
 
-## Resources
+- La aplicación está diseñada para utilizar almacenamiento en memoria, lo que facilita las pruebas y el desarrollo.
+- Se ha implementado la estructura necesaria para soportar MongoDB como almacenamiento alternativo, aunque no es necesario para el funcionamiento actual.
+- El sistema de permisos se ha simplificado al máximo para facilitar su comprensión, utilizando solo dos roles: ADMIN y USER.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Pruebas
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# Ejecutar pruebas unitarias
+npm run test
 
-## Support
+# Ejecutar pruebas e2e
+npm run test:e2e
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Ejecutar pruebas con cobertura
+npm run test:cov
+```
 
-## Stay in touch
+## Colección de Postman
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+El proyecto incluye una colección de Postman para facilitar las pruebas de los endpoints. Puedes encontrarla en la carpeta `postman` del proyecto. Para usarla:
 
-## License
+1. Importa la colección en Postman
+2. Configura la variable de entorno `baseUrl` con la URL de tu API (por defecto: `http://localhost:3000`)
+3. Ejecuta las solicitudes para probar los diferentes endpoints
 
+## Licencia
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
